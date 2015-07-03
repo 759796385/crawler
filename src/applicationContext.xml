@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframewordk.org/schema/c"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+	<bean name="datasource" class="org.springframework.jndi.JndiObjectFactoryBean"
+	p:jndiName="java:comp/env/jdbc/mysql"/>
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean"
+    p:dataSource-ref="datasource">
+    	<property name="mappingResources">
+    		<list>
+    			<value>com/tq/entity/Student.hbm.xml</value>
+    		</list>
+    	</property>
+    	<!-- 定义hibernate sessionFactory的属性 -->
+    	<property name="hibernateProperties">
+    		<props>
+    		<!-- 定义数据库方言 -->
+    			<prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+    			<prop key="hibernate.hbm2ddl.auto">update</prop>
+    			<prop key="hibernate.show_sql">true</prop>
+    			<prop key="hibernate.format_sql">true</prop>
+    			<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate4.SpringSessionContext</prop>
+    		</props>
+    	</property>
+    </bean>
+    
+    
+    <!-- dao -->
+    <bean id="IStudentDao" class="com.tq.dao.impl.StudentDaoImpl"
+    p:sessionFactory-ref="sessionFactory"/>
+    
+	<!-- service -->
+	<bean id="stuservice" class="com.tq.service.impl.StudentManaggImpl"
+	p:dao-ref="IStudentDao"></bean>
+	
+	<!-- action -->
+	<bean id="SearchPageAction" class="com.tq.action.SearchPageAction"
+	p:service-ref="stuservice"/>
+	<bean id="SearchAction" class="com.tq.action.SearchAction"
+	p:service-ref="stuservice"/>
+	
+	
+	
+	
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
+    p:sessionFactory-ref="sessionFactory"/>
+	<!-- 事务 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="*get" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	<aop:config>
+		<!-- 配置一个切入点 -->
+		<aop:pointcut expression="bean(stuservice)" id="myPointcut"/>
+		<!-- 配置事务 -->
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="myPointcut"/>
+	</aop:config>
+</beans>

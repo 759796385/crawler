@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<!-- 指定全局国际化资源文件 -->
+	<constant name="struts.i18n.encoding" value="utf-8"/>
+    <constant name="struts.enable.DynamicMethodInvocation" value="false" />
+    <constant name="struts.devMode" value="true" />
+	<package name="tq" extends="struts-default">
+		<global-results>
+	        	<result name="sql">/WEB-INF/content/exception.jsp</result>
+	        	<result name="root">/WEB-INF/content/exception.jsp</result>
+	       		<!-- 配置全局结果，target是action中的属性  -->
+	        	<result>/WEB-INF/content/${target}.jsp</result>
+	    </global-results>
+	    <global-exception-mappings>
+			<!-- 当出现sql异常，转入name为sql的result中 -->
+			<exception-mapping result="sql" exception="java.sql.SQLException"/>
+			<!-- 当出现Exception异常，转入name为sql的result中 -->
+			<exception-mapping result="root" exception="java.lang.Exception"/>
+		</global-exception-mappings>
+		<action name="SearchPageAction" class="SearchPageAction">
+			<result>/WEB-INF/content/index.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
+		</action>
+		
+		<action name="Name" class="SearchAction" method="searchName">
+			<result>/WEB-INF/content/result.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
+		</action>
+		<action name="NameAndNo" class="SearchAction" method="searchNameAndSNo">
+			<result>/WEB-INF/content/result.jsp</result>
+			<result name="error">/WEB-INF/content/error.jsp</result>
+		</action>
+		
+	</package>
+   
+
+</struts>
